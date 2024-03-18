@@ -15,16 +15,38 @@ const CreatePost = () => {
   const[generatingImg,setGeneratingImg] = useState(false);
   const[loading ,setLoading] = useState(false);
   
-  const generateImage =() =>{}
-  const handleSubmit=() =>{}
-  const handleChange=(e) =>{
+  const generateImage =async() =>{
+    if(form.prompt){
+      try {
+        setGeneratingImg(true);
+        const response = await fetch('http://localhost:8080/api/v1/Dalle',
+        {
+          method:'POST',
+          headers:{
+            'Content-Type' : 'application/json',
+          },
+          body : JSON.stringify({prompt:form.prompt,}),
+        });
 
-    setform({...form , [e.target.name] : e.target.value})
+        const data =await response.json();
+
+        setform({...form,photo:`data:image/jpeg;base64,${data.photo}`});
+      } catch (error) {
+        alert(error);
+      }finally{
+        setGeneratingImg(false);
+      }
+    }else{
+      alert('please enter a prompt')
+    }
   }
+  const handleSubmit=() =>{}
+  const handleChange=(e) =>  setform({...form , [e.target.name] : e.target.value});
+  
   const handleSurpriseMe = ()=>{
     const randomPrompt = getRandomPromt(form.prompt);
-    setform({ ...form , prompt: randomPrompt})
-  }
+    setform({ ...form , prompt: randomPrompt});
+  };
   return (
     <section className='max-w-7xl mx-auto'>
       <div>
@@ -50,7 +72,7 @@ const CreatePost = () => {
         lableName="Promt"
         type = "text"
         name="Promt"
-        placeholder="Piyush Mendhe"
+        placeholder="Enter Prompt"
         value={form.prompt}
         handleChange={handleChange}
         isSurpriseMe
@@ -99,7 +121,7 @@ const CreatePost = () => {
       </div>
 
       <div className='mt-10'>
-        <p className='mt-2 text-[#666e75] text-[14px]'>Once you have created share it with others :)</p>
+        <p className='mt-2 text-[#666e75] text-[14px]'>Once you have created share it with others :</p>
         <button
         type="submit"
         className='mt-3 text-white bg-[#6469ff] font-medium rounded-md
